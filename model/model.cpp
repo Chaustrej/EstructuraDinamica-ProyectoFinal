@@ -44,3 +44,33 @@ Persona* model_construirArbol(Persona* lista) {
     }
     return raiz;
 }
+
+Persona* model_encontrarHeredero(Persona* nodo) {
+    if (!nodo) return nullptr;
+    if (!nodo->isDead) return nodo;
+    Persona* izq = model_encontrarHeredero(nodo->hijoMayor);
+    if (izq) return izq;
+    return model_encontrarHeredero(nodo->hijoMenor);
+}
+
+void model_limpiarReyes(Persona* nodo) {
+    if (!nodo) return;
+    nodo->isKing = false;
+    model_limpiarReyes(nodo->hijoMayor);
+    model_limpiarReyes(nodo->hijoMenor);
+}
+
+Persona* model_cargarDesdeCSV(string arch) {
+    ifstream f(arch); if (!f.is_open()) return nullptr;
+    string l; getline(f, l);
+    Persona *cab = nullptr, *ult = nullptr;
+    while (getline(f, l)) {
+        Persona* p = model_crearPersona(
+            stringToInt(obtenerCampo(l,0)), obtenerCampo(l,1), obtenerCampo(l,2),
+            obtenerCampo(l,3)[0], stringToInt(obtenerCampo(l,4)), stringToInt(obtenerCampo(l,5)),
+            stringToInt(obtenerCampo(l,6))==1, stringToInt(obtenerCampo(l,7))==1, stringToInt(obtenerCampo(l,8))==1
+        );
+        if (!cab) { cab = p; ult = p; } else { ult->siguienteEnLista = p; ult = p; }
+    }
+    f.close(); return cab;
+}
