@@ -8,7 +8,6 @@
 static Persona* listaGlobal = nullptr;
 static Persona* raizArbol = nullptr;
 
-
 void controller_eventoCargarDatos() {
     view_mostrarMensaje("Cargando datos desde CSV...");
     
@@ -24,6 +23,7 @@ void controller_eventoCargarDatos() {
         view_mostrarArbol(raizArbol);
     }
 }
+
 void controller_eventoAsignarRey() {
     if (raizArbol == nullptr) {
         view_mostrarMensaje("ERROR: Base de datos vacia. Cargue datos primero.");

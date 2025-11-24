@@ -17,6 +17,7 @@ void helper_imprimirNodo(Persona* nodo, int nivel) {
     helper_imprimirNodo(nodo->hijoMayor, nivel+1);
     helper_imprimirNodo(nodo->hijoMenor, nivel+1);
 }
+
 // --- FUNCIONES PÚBLICAS ---
 
 void view_mostrarMensaje(string msg) {
@@ -36,6 +37,7 @@ void view_mostrarArbol(Persona* raiz) {
     else helper_imprimirNodo(raiz, 0);
     cout << "=========================\n" << endl;
 }
+
 // BUCLE PRINCIPAL (El usuario vive aquí)
 void view_iniciarSistema() {
     int opcion = 0;
