@@ -7,3 +7,43 @@
 // pero persisten durante toda la ejecución.
 static Persona* listaGlobal = nullptr;
 static Persona* raizArbol = nullptr;
+
+
+void controller_eventoCargarDatos() {
+    view_mostrarMensaje("Cargando datos desde CSV...");
+    
+    listaGlobal = model_cargarDesdeCSV("bin/realeza.csv");
+    
+    if (listaGlobal == nullptr) {
+        view_mostrarMensaje("ERROR: No se pudo abrir 'realeza.csv'.");
+    } else {
+        raizArbol = model_construirArbol(listaGlobal);
+        view_mostrarMensaje("Datos cargados exitosamente.");
+        
+        // El controller decide qué se muestra ahora:
+        view_mostrarArbol(raizArbol);
+    }
+}
+void controller_eventoAsignarRey() {
+    if (raizArbol == nullptr) {
+        view_mostrarMensaje("ERROR: Base de datos vacia. Cargue datos primero.");
+        return;
+    }
+
+    view_mostrarMensaje("Calculando sucesion...");
+    
+    // 1. Limpiar
+    model_limpiarReyes(raizArbol);
+    
+    // 2. Calcular
+    Persona* nuevoRey = model_encontrarHeredero(raizArbol);
+    
+    // 3. Actualizar dato
+    if (nuevoRey != nullptr) {
+        nuevoRey->isKing = true;
+    }
+    
+    // 4. Actualizar Vistas
+    view_anunciarRey(nuevoRey);
+    view_mostrarArbol(raizArbol);
+}
