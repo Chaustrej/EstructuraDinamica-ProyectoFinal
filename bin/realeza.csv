@@ -1,0 +1,7 @@
+id,name,last_name,gender,age,id_father,is_dead,was_king,is_king
+1,Rey,  Uno,        H,  90,     0,      1,      1,      0
+2,Hijo,Mayor,H,60,1,1,0,0
+3,Hijo,Menor,H,50,1,0,0,0
+4,Nieto,Mayor,H,30,2,1,0,0
+5,Nieto,Menor,H,25,2,0,0,0
+6,Bisnieto,Vivo,H,5,4,0,0,0
