@@ -7,6 +7,7 @@ Aplicación de consola en C++ que modela un linaje real, calcula la sucesión le
 - Construcción de un árbol genealógico enlazado a partir de los registros cargados.
 - Limpieza y cálculo dinámico del heredero aplicando reglas de sucesión (el primer vivo siguiendo la jerarquía).
 - Impresión jerárquica del árbol y anuncio del nuevo rey.
+
 ## Estructura del proyecto
 ```
 main.cpp                 # Punto de entrada que delega todo en la vista
@@ -38,3 +39,13 @@ g++ main.cpp model/model.cpp view/view.cpp controller/controller.cpp -o bin/prog
    - `1` Cargar datos desde CSV.
    - `2` Calcular y anunciar al rey vigente.
    - `3` Salir.
+
+> **Nota:** El controlador prueba automáticamente varias rutas comunes para `realeza.csv` (`bin/`). Asegúrate de que el archivo exista en esta ruta o ajusta la ruta en `controller/controller.cpp` si cambiaste la estructura.
+
+## Formato del CSV
+La primera fila es un encabezado. Cada línea siguiente usa la forma:
+```
+id,nombre,apellido,género,edad,fatherId,isDead,wasKing,isKing
+```
+- `fatherId = 0` identifica a la raíz del árbol.
+- Los campos booleanos se expresan como `0` o `1`.
