@@ -47,3 +47,12 @@ void controller_eventoAsignarRey() {
     view_anunciarRey(nuevoRey);
     view_mostrarArbol(raizArbol);
 }
+
+void controller_eventoMostrarSucesion() {
+    if (raizArbol == nullptr) {
+        view_mostrarMensaje("Base de datos vacia. Cargue datos primero.");
+        return;
+    }
+    // Llama a la vista pasándole la raíz
+    view_mostrarLineaSucesion(raizArbol);
+}
