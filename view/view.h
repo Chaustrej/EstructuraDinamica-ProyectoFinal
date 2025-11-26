@@ -13,5 +13,6 @@ void view_iniciarSistema();
 void view_mostrarArbol(Persona* raiz);
 void view_anunciarRey(Persona* rey);
 void view_mostrarMensaje(string msg);
+void view_mostrarLineaSucesion(Persona* raiz);
 
 #endif
