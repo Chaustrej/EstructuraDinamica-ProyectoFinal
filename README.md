@@ -49,3 +49,10 @@ id,nombre,apellido,género,edad,fatherId,isDead,wasKing,isKing
 ```
 - `fatherId = 0` identifica a la raíz del árbol.
 - Los campos booleanos se expresan como `0` o `1`.
+
+
+## Próximas mejoras sugeridas
+
+- Validar duplicados y datos inconsistentes al cargar el CSV.
+- Admitir múltiples hijos por nodo (actualmente solo se guardan hijo mayor y menor).
+- Persistir el estado de `isKing` en disco tras calcular la sucesión.
