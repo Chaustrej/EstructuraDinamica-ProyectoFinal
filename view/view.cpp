@@ -46,7 +46,8 @@ void view_iniciarSistema() {
     while (ejecutar) {
         cout << "\n1. Cargar Datos" << endl;
         cout << "2. Asignar Rey" << endl;
-        cout << "3. Salir" << endl;
+        cout << "3. Ver Linea de Sucesion (Solo Vivos)" << endl;
+        cout << "4. Salir" << endl;
         cout << ">> ";
         
         if (!(cin >> opcion)) {
@@ -55,14 +56,15 @@ void view_iniciarSistema() {
 
         switch (opcion) {
             case 1:
-                // VIEW LLAMA A CONTROLLER
                 controller_eventoCargarDatos();
                 break;
             case 2:
-                // VIEW LLAMA A CONTROLLER
                 controller_eventoAsignarRey();
                 break;
             case 3:
+                controller_eventoMostrarSucesion();
+                break;
+            case 4:
                 ejecutar = false;
                 view_mostrarMensaje("Saliendo...");
                 break;
@@ -70,4 +72,46 @@ void view_iniciarSistema() {
                 view_mostrarMensaje("Opcion invalida.");
         }
     }
+}
+
+static int contadorSucesion = 1;
+
+// Función recursiva interna de la vista
+void helper_imprimirSucesion(Persona* nodo) {
+    if (nodo == nullptr) return;
+
+    // 1. Si está vivo, lo imprimimos
+    if (!nodo->isDead) {
+        cout << contadorSucesion << ". " << nodo->name << " " << nodo->lastName 
+             << " (" << nodo->age << " anios)";
+        
+        if (nodo->isKing) cout << " [REY ACTUAL]";
+        cout << endl;
+        
+        contadorSucesion++; // Aumentamos el número para el siguiente
+    }
+
+    // 2. Primero el primogénito (Izquierda)
+    helper_imprimirSucesion(nodo->hijoMayor);
+
+    // 3. Después el hermano (Derecha)
+    helper_imprimirSucesion(nodo->hijoMenor);
+}
+
+// Función pública
+void view_mostrarLineaSucesion(Persona* raiz) {
+    cout << "\n=== LINEA DE SUCESION ACTUAL (VIVOS) ===" << endl;
+    
+    if (raiz == nullptr) {
+        cout << "Arbol vacio." << endl;
+    } else {
+        contadorSucesion = 1; // Reiniciar contador
+        helper_imprimirSucesion(raiz);
+        
+        if (contadorSucesion == 1) { 
+            // Si sigue siendo 1, significa que no imprimió a nadie
+            cout << "No quedan herederos vivos." << endl;
+        }
+    }
+    cout << "========================================" << endl;
 }
