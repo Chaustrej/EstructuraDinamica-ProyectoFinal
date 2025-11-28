@@ -56,3 +56,26 @@ void controller_eventoMostrarSucesion() {
     // Llama a la vista pasándole la raíz
     view_mostrarLineaSucesion(raizArbol);
 }
+
+void controller_eventoMatarRey() {
+    if (raizArbol == nullptr) {
+        view_mostrarMensaje("Cargue datos primero.");
+        return;
+    }
+
+    // 1. Guardamos referencia al rey actual (antes de matarlo) para mostrarlo en el mensaje
+    Persona* reyAntiguo = model_obtenerReyActual(raizArbol);
+
+    // 2. Ejecutamos la lógica de sucesión (Modelo)
+    // Esto mata al antiguo y corona al nuevo internamente
+    model_ejecutarMuerteRey(raizArbol);
+
+    // 3. Buscamos quién quedó como rey ahora
+    Persona* reyNuevo = model_obtenerReyActual(raizArbol);
+
+    // 4. Mostramos el mensaje dramático
+    view_mostrarCambioRey(reyAntiguo, reyNuevo);
+
+    // 5. Mostramos el árbol actualizado para verificar visualmente
+    view_mostrarArbol(raizArbol);
+}
