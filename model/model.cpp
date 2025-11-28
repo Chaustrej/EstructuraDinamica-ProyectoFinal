@@ -2,8 +2,8 @@
 #include <iostream>
 #include <fstream>
 
-// Helpers privados
 int stringToInt(string s) { try { return stoi(s); } catch (...) { return 0; } }
+
 string obtenerCampo(string linea, int indice) {
     string campo = ""; int comas = 0;
     for (char c : linea) {
@@ -13,6 +13,9 @@ string obtenerCampo(string linea, int indice) {
     return campo;
 }
 
+// ==========================================
+// GESTION DE MEMORIA Y ARBOL
+// ==========================================
 Persona* model_crearPersona(int id, string n, string l, char g, int a, int fId, bool d, bool wk, bool ik) {
     Persona* p = new Persona;
     p->id = id; p->name = n; p->lastName = l; p->gender = g; p->age = a;
@@ -45,14 +48,6 @@ Persona* model_construirArbol(Persona* lista) {
     return raiz;
 }
 
-Persona* model_encontrarHeredero(Persona* nodo) {
-    if (!nodo) return nullptr;
-    if (!nodo->isDead) return nodo;
-    Persona* izq = model_encontrarHeredero(nodo->hijoMayor);
-    if (izq) return izq;
-    return model_encontrarHeredero(nodo->hijoMenor);
-}
-
 void model_limpiarReyes(Persona* nodo) {
     if (!nodo) return;
     nodo->isKing = false;
@@ -60,6 +55,110 @@ void model_limpiarReyes(Persona* nodo) {
     model_limpiarReyes(nodo->hijoMenor);
 }
 
+// ==========================================
+// LOGICA DE SUCESION
+// ==========================================
+
+// FASE 1: Busqueda de varones
+Persona* buscarCandidatoVaron(Persona* nodo) {
+    if (nodo == nullptr) return nullptr;
+
+    // 1. Prioridad Absoluta: Rama de Primogénitos (Izquierda)
+    Persona* candidatoIzq = buscarCandidatoVaron(nodo->hijoMayor);
+    if (candidatoIzq != nullptr) return candidatoIzq;
+
+    // 2. Segunda Prioridad: Rama de Segundos hijos (Derecha)
+    Persona* candidatoDer = buscarCandidatoVaron(nodo->hijoMenor);
+    if (candidatoDer != nullptr) return candidatoDer;
+
+    // 3. Tercera Prioridad: El nodo actual (Él mismo)
+    bool esVaron = (nodo->gender == 'H');
+    bool estaVivo = (!nodo->isDead);
+    bool edadCorrecta = (nodo->age < 70);
+
+    if (esVaron && estaVivo && edadCorrecta) {
+        return nodo;
+    }
+
+    return nullptr;
+}
+
+// FASE 2: Busqueda de mujeres (Salica modificada)
+void buscarCandidataMujer(Persona* nodo, Persona*& mejorCandidata) {
+    if (nodo == nullptr) return;
+
+    // Analizar nodo actual
+    bool esMujer = (nodo->gender == 'M');
+    bool estaViva = (!nodo->isDead);
+    bool rangoEdad = (nodo->age > 15 && nodo->age < 70);
+
+    if (esMujer && estaViva && rangoEdad) {
+        if (mejorCandidata == nullptr) {
+            mejorCandidata = nodo;
+        } else {
+            // Regla: "La más joven"
+            if (nodo->age < mejorCandidata->age) {
+                mejorCandidata = nodo;
+            }
+        }
+    }
+
+    buscarCandidataMujer(nodo->hijoMayor, mejorCandidata);
+    buscarCandidataMujer(nodo->hijoMenor, mejorCandidata);
+}
+
+Persona* model_encontrarHeredero(Persona* raiz) {
+    if (raiz == nullptr) return nullptr;
+    // 1.intento varones
+    Persona* reyVaron = buscarCandidatoVaron(raiz);
+    
+    if (reyVaron != nullptr) {
+        return reyVaron;
+    }
+
+    // 2. intento mujeres (Si no hay varones en NINGUNA parte)
+    Persona* reina = nullptr;
+    buscarCandidataMujer(raiz, reina);
+    
+    return reina;
+}
+
+Persona* model_obtenerReyActual(Persona* nodo) {
+    if (nodo == nullptr) return nullptr;
+    
+    if (nodo->isKing) return nodo;
+    
+    Persona* izq = model_obtenerReyActual(nodo->hijoMayor);
+    if (izq) return izq;
+    
+    return model_obtenerReyActual(nodo->hijoMenor);
+}
+
+void model_ejecutarMuerteRey(Persona* raiz) {
+    if (raiz == nullptr) return;
+
+    // 1. Buscar al Rey Actual
+    Persona* reyActual = model_obtenerReyActual(raiz);
+
+    if (reyActual != nullptr) {
+        // 2. Aplicar lógica de muerte/retiro
+        reyActual->isKing = false;
+        reyActual->wasKing = true;
+        reyActual->isDead = true; // Lo matamos para que la lógica de sucesión busque al siguiente
+    }
+
+    // 3. Buscar al NUEVO heredero con el rey anterior ya muerto
+    Persona* nuevoRey = model_encontrarHeredero(raiz);
+
+    // 4. Coronar al nuevo
+    if (nuevoRey != nullptr) {
+        nuevoRey->isKing = true;
+    }
+}
+
+// ==========================================
+// CARGA CSV
+// ==========================================
 Persona* model_cargarDesdeCSV(string arch) {
     ifstream f(arch); if (!f.is_open()) return nullptr;
     string l; getline(f, l);

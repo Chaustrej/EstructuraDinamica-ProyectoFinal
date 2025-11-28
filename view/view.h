@@ -2,7 +2,7 @@
 #define VIEW_H
 
 #include <string>
-#include "../model/model.h" // Necesita conocer la struct Persona para pintar
+#include "../model/model.h"
 
 using namespace std;
 
@@ -14,5 +14,5 @@ void view_mostrarArbol(Persona* raiz);
 void view_anunciarRey(Persona* rey);
 void view_mostrarMensaje(string msg);
 void view_mostrarLineaSucesion(Persona* raiz);
-
+void view_mostrarCambioRey(Persona* reyAntiguo, Persona* reyNuevo);
 #endif

@@ -1,8 +1,7 @@
 #include "view.h"
-#include "../controller/controller.h" // View llama a Controller
+#include "../controller/controller.h"
 #include <iostream>
 
-// Helpers de visualización
 void helper_imprimirNodo(Persona* nodo, int nivel) {
     if (!nodo) return;
     for(int i=0; i<nivel; i++) cout << "   ";
@@ -17,8 +16,6 @@ void helper_imprimirNodo(Persona* nodo, int nivel) {
     helper_imprimirNodo(nodo->hijoMayor, nivel+1);
     helper_imprimirNodo(nodo->hijoMenor, nivel+1);
 }
-
-// --- FUNCIONES PÚBLICAS ---
 
 void view_mostrarMensaje(string msg) {
     cout << "\n[SISTEMA]: " << msg << endl;
@@ -44,10 +41,12 @@ void view_iniciarSistema() {
     bool ejecutar = true;
 
     while (ejecutar) {
-        cout << "\n1. Cargar Datos" << endl;
-        cout << "2. Asignar Rey" << endl;
+        cout << "\n--- MENU REAL ---" << endl;
+        cout << "1. Cargar Datos" << endl;
+        cout << "2. Ver Arbol y Estado Actual" << endl;
         cout << "3. Ver Linea de Sucesion (Solo Vivos)" << endl;
-        cout << "4. Salir" << endl;
+        cout << "4. Matar Rey Actual y Asignar Nuevo" << endl;
+        cout << "5. Salir" << endl;
         cout << ">> ";
         
         if (!(cin >> opcion)) {
@@ -55,28 +54,20 @@ void view_iniciarSistema() {
         }
 
         switch (opcion) {
-            case 1:
-                controller_eventoCargarDatos();
+            case 1: controller_eventoCargarDatos(); break;
+            case 2: 
+                controller_eventoAsignarRey(); 
                 break;
-            case 2:
-                controller_eventoAsignarRey();
-                break;
-            case 3:
-                controller_eventoMostrarSucesion();
-                break;
-            case 4:
-                ejecutar = false;
-                view_mostrarMensaje("Saliendo...");
-                break;
-            default:
-                view_mostrarMensaje("Opcion invalida.");
+            case 3: controller_eventoMostrarSucesion(); break;
+            case 4: controller_eventoMatarRey(); break;
+            case 5: ejecutar = false; view_mostrarMensaje("Saliendo..."); break;
+            default: view_mostrarMensaje("Opcion invalida.");
         }
     }
 }
 
 static int contadorSucesion = 1;
 
-// Función recursiva interna de la vista
 void helper_imprimirSucesion(Persona* nodo) {
     if (nodo == nullptr) return;
 
@@ -88,7 +79,7 @@ void helper_imprimirSucesion(Persona* nodo) {
         if (nodo->isKing) cout << " [REY ACTUAL]";
         cout << endl;
         
-        contadorSucesion++; // Aumentamos el número para el siguiente
+        contadorSucesion++; 
     }
 
     // 2. Primero el primogénito (Izquierda)
@@ -98,20 +89,37 @@ void helper_imprimirSucesion(Persona* nodo) {
     helper_imprimirSucesion(nodo->hijoMenor);
 }
 
-// Función pública
 void view_mostrarLineaSucesion(Persona* raiz) {
     cout << "\n=== LINEA DE SUCESION ACTUAL (VIVOS) ===" << endl;
     
     if (raiz == nullptr) {
         cout << "Arbol vacio." << endl;
     } else {
-        contadorSucesion = 1; // Reiniciar contador
+        contadorSucesion = 1; 
         helper_imprimirSucesion(raiz);
         
         if (contadorSucesion == 1) { 
-            // Si sigue siendo 1, significa que no imprimió a nadie
             cout << "No quedan herederos vivos." << endl;
         }
     }
     cout << "========================================" << endl;
+}
+
+void view_mostrarCambioRey(Persona* reyAntiguo, Persona* reyNuevo) {
+    cout << "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+    cout << "       SUCESO EN EL REINO       " << endl;
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+    
+    if (reyAntiguo) {
+        cout << "El Rey " << reyAntiguo->name << " ha fallecido." << endl;
+    } else {
+        cout << "No habia Rey reinante." << endl;
+    }
+
+    if (reyNuevo) {
+        cout << ">>> LARGA VIDA AL NUEVO REY: " << reyNuevo->name << " " << reyNuevo->lastName << " <<<" << endl;
+    } else {
+        cout << ">>> EL LINAJE SE HA EXTINGUIDO. NO HAY HEREDEROS. <<<" << endl;
+    }
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n" << endl;
 }
