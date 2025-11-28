@@ -24,9 +24,12 @@ struct Persona {
 Persona* model_crearPersona(int id, string n, string l, char g, int a, int fId, bool d, bool wk, bool ik);
 Persona* model_cargarDesdeCSV(string nombreArchivo);
 Persona* model_construirArbol(Persona* cabezaLista);
+Persona* model_buscarPorId(Persona* cabeza, int id);
 void model_limpiarReyes(Persona* nodo);
 Persona* model_encontrarHeredero(Persona* raiz);
 Persona* model_obtenerReyActual(Persona* nodo);
 void model_ejecutarMuerteRey(Persona* raiz);
+void model_actualizarDatos(Persona* p, string n, string l, char g, int a, bool d);
+bool model_guardarEnCSV(Persona* cabeza, string nombreArchivo);
 
 #endif
