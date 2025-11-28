@@ -63,19 +63,107 @@ void controller_eventoMatarRey() {
         return;
     }
 
-    // 1. Guardamos referencia al rey actual (antes de matarlo) para mostrarlo en el mensaje
     Persona* reyAntiguo = model_obtenerReyActual(raizArbol);
 
-    // 2. Ejecutamos la lógica de sucesión (Modelo)
-    // Esto mata al antiguo y corona al nuevo internamente
     model_ejecutarMuerteRey(raizArbol);
 
-    // 3. Buscamos quién quedó como rey ahora
+    bool guardado = model_guardarEnCSV(listaGlobal, "bin/realeza.csv");
+    if (!guardado) {
+        view_mostrarMensaje("AVISO: No se pudo persistir la muerte del rey en el CSV.");
+    }
+
     Persona* reyNuevo = model_obtenerReyActual(raizArbol);
 
     // 4. Mostramos el mensaje dramático
     view_mostrarCambioRey(reyAntiguo, reyNuevo);
 
     // 5. Mostramos el árbol actualizado para verificar visualmente
+    view_mostrarArbol(raizArbol);
+}
+
+void controller_eventoEditarPersona() {
+    if (listaGlobal == nullptr) {
+        view_mostrarMensaje("Cargue datos primero.");
+        return;
+    }
+
+    int idBuscado;
+    cout << "\nIngrese el ID de la persona a editar: ";
+    cin >> idBuscado;
+
+    Persona* persona = model_buscarPorId(listaGlobal, idBuscado);
+
+    if (persona == nullptr) {
+        view_mostrarMensaje("ID no encontrado.");
+        return;
+    }
+
+    bool continuar = true;
+    bool huboCambios = false;
+
+    while (continuar) {
+        int opcionEdicion = view_menuEdicionPersona();
+
+        switch (opcionEdicion) {
+            case 0:
+                continuar = false;
+                break;
+            case 1:
+                persona->name = view_pedirNuevoNombre(persona);
+                huboCambios = true;
+                break;
+            case 2:
+                persona->lastName = view_pedirNuevoApellido(persona);
+                huboCambios = true;
+                break;
+            case 3:
+                persona->gender = view_pedirNuevoGenero(persona);
+                huboCambios = true;
+                break;
+            case 4:
+                persona->age = view_pedirNuevaEdad(persona);
+                huboCambios = true;
+                break;
+            case 5:
+                persona->isDead = view_pedirNuevoEstadoVida(persona);
+                huboCambios = true;
+                break;
+            case 6: {
+                string n, l;
+                char g;
+                int a;
+                bool d;
+                view_pedirDatosEdicion(persona, n, l, g, a, d);
+                model_actualizarDatos(persona, n, l, g, a, d);
+                huboCambios = true;
+                break;
+            }
+            default:
+                view_mostrarMensaje("Opcion de edicion invalida.");
+                break;
+        }
+    }
+
+    if (!huboCambios) {
+        view_mostrarMensaje("No se realizaron cambios.");
+        return;
+    }
+
+    // RECONSTRUCCION DEL ARBOL (orden puede cambiar tras editar edad)
+    Persona* actual = listaGlobal;
+    while(actual != nullptr) {
+        actual->hijoMayor = nullptr;
+        actual->hijoMenor = nullptr;
+        actual = actual->siguienteEnLista;
+    }
+    raizArbol = model_construirArbol(listaGlobal);
+
+    bool guardado = model_guardarEnCSV(listaGlobal, "bin/realeza.csv");
+    if (guardado) {
+        view_mostrarMensaje("Datos actualizados, arbol reestructurado y CSV sincronizado.");
+    } else {
+        view_mostrarMensaje("Datos actualizados pero no se pudo escribir el CSV.");
+    }
+
     view_mostrarArbol(raizArbol);
 }

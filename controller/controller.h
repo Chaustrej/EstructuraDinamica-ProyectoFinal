@@ -6,5 +6,6 @@ void controller_eventoCargarDatos();
 void controller_eventoAsignarRey();
 void controller_eventoMostrarSucesion();
 void controller_eventoMatarRey();
+void controller_eventoEditarPersona();
 
 #endif
