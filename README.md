@@ -1,3 +1,4 @@
+REALIZADO POR----- Juan Chaustre 30.886.168, Luis Barrios 31.552.124
 # Sistema de Sucesión Monárquica (MVC C++)
 
 Aplicación de consola en C++ que modela un linaje real, calcula la sucesión legítima y muestra el árbol genealógico. El proyecto sigue un patrón MVC sencillo: la **Vista** gestiona la interacción por menú, el **Controlador** coordina las acciones y el **Modelo** encapsula la lógica sobre personas.
@@ -37,7 +38,7 @@ g++ main.cpp model/model.cpp view/view.cpp controller/controller.cpp -o bin/prog
 ```
 
 ## Ejecución
-1. Desde la raíz del proyecto (`C:\Users\ejemp\OneDrive\Desktop\EDD\Luis`) ejecuta:
+1. Desde la raíz del proyecto (`C:\Users\PC\Desktop\EstructuraDinamica-ProyectoFinal-main`) ejecuta:
    ```
    ./bin/programa.exe
    ```
