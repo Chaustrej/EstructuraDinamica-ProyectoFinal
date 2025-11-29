@@ -1,16 +1,17 @@
 #include "view.h"
 #include "../controller/controller.h"
 #include <iostream>
+#include <cctype>
 
 void helper_imprimirNodo(Persona* nodo, int nivel) {
     if (!nodo) return;
     for(int i=0; i<nivel; i++) cout << "   ";
     
-    cout << (nodo->isDead ? "[X] " : "[ ] ")
-         << nodo->name << " " << nodo->lastName
-         << " (" << nodo->age << ")";
-         
-    if (nodo->isKing) cout << " <--- REY";
+        cout << (nodo->isDead ? "[X] " : "[ ] ")
+            << nodo->name << " " << nodo->lastName
+            << " (" << nodo->age << ")";
+    
+        if (nodo->isKing && !nodo->isDead) cout << " <--- REY";
     cout << endl;
     
     helper_imprimirNodo(nodo->hijoMayor, nivel+1);
@@ -23,7 +24,7 @@ void view_mostrarMensaje(string msg) {
 
 void view_anunciarRey(Persona* rey) {
     cout << "--------------------------------" << endl;
-    if (rey) cout << "HABEMUS REX: " << rey->name << " " << rey->lastName << endl;
+    if (rey) cout << "REY ACTUAL: " << rey->name << " " << rey->lastName << endl;
     else cout << "EL LINAJE HA TERMINADO." << endl;
     cout << "--------------------------------" << endl;
 }
@@ -33,6 +34,71 @@ void view_mostrarArbol(Persona* raiz) {
     if (!raiz) cout << "(Vacio)" << endl;
     else helper_imprimirNodo(raiz, 0);
     cout << "=========================\n" << endl;
+}
+
+int view_menuEdicionPersona() {
+    int opcion;
+    cout << "\n--- MENU DE EDICION ---" << endl;
+    cout << "1. Nombre" << endl;
+    cout << "2. Apellido" << endl;
+    cout << "3. Genero" << endl;
+    cout << "4. Edad" << endl;
+    cout << "5. Estado de vida" << endl;
+    cout << "6. Editar todos los campos" << endl;
+    cout << "0. Terminar edicion" << endl;
+    cout << ">> Seleccione una opcion: ";
+    if (!(cin >> opcion)) {
+        cin.clear(); cin.ignore(1000, '\n');
+        return -1;
+    }
+    return opcion;
+}
+
+string view_pedirNuevoNombre(Persona* p) {
+    string n;
+    cout << "Nombre actual (" << p->name << "): ";
+    cin >> n;
+    return n;
+}
+
+string view_pedirNuevoApellido(Persona* p) {
+    string l;
+    cout << "Apellido actual (" << p->lastName << "): ";
+    cin >> l;
+    return l;
+}
+
+char view_pedirNuevoGenero(Persona* p) {
+    char g;
+    cout << "Genero actual (" << p->gender << ") [H/M]: ";
+    cin >> g;
+    g = static_cast<char>(toupper(g));
+    while (g != 'H' && g != 'M') {
+        cout << "Ingrese 'H' o 'M': ";
+        cin >> g;
+        g = static_cast<char>(toupper(g));
+    }
+    return g;
+}
+
+int view_pedirNuevaEdad(Persona* p) {
+    int a;
+    cout << "Edad actual (" << p->age << "): ";
+    while (!(cin >> a)) {
+        cin.clear(); cin.ignore(1000, '\n');
+        cout << "Edad invalida. Intente de nuevo: ";
+    }
+    return a;
+}
+
+bool view_pedirNuevoEstadoVida(Persona* p) {
+    int flag;
+    cout << "Esta muerto? (Actual: " << (p->isDead ? "Si" : "No") << ") [1=Si, 0=No]: ";
+    while (!(cin >> flag) || (flag != 0 && flag != 1)) {
+        cin.clear(); cin.ignore(1000, '\n');
+        cout << "Ingrese 1 para Si o 0 para No: ";
+    }
+    return flag == 1;
 }
 
 // BUCLE PRINCIPAL (El usuario vive aquí)
@@ -46,7 +112,8 @@ void view_iniciarSistema() {
         cout << "2. Ver Arbol y Estado Actual" << endl;
         cout << "3. Ver Linea de Sucesion (Solo Vivos)" << endl;
         cout << "4. Matar Rey Actual y Asignar Nuevo" << endl;
-        cout << "5. Salir" << endl;
+        cout << "5. Editar Datos de una Persona" << endl;  // <--- NUEVO
+        cout << "6. Salir" << endl; // <--- CAMBIO DE NUMERO
         cout << ">> ";
         
         if (!(cin >> opcion)) {
@@ -55,12 +122,11 @@ void view_iniciarSistema() {
 
         switch (opcion) {
             case 1: controller_eventoCargarDatos(); break;
-            case 2: 
-                controller_eventoAsignarRey(); 
-                break;
+            case 2: controller_eventoAsignarRey(); break;
             case 3: controller_eventoMostrarSucesion(); break;
             case 4: controller_eventoMatarRey(); break;
-            case 5: ejecutar = false; view_mostrarMensaje("Saliendo..."); break;
+            case 5: controller_eventoEditarPersona(); break;
+            case 6: ejecutar = false; view_mostrarMensaje("Saliendo..."); break;
             default: view_mostrarMensaje("Opcion invalida.");
         }
     }
@@ -76,7 +142,7 @@ void helper_imprimirSucesion(Persona* nodo) {
         cout << contadorSucesion << ". " << nodo->name << " " << nodo->lastName 
              << " (" << nodo->age << " anios)";
         
-        if (nodo->isKing) cout << " [REY ACTUAL]";
+        if (nodo->isKing && !nodo->isDead) cout << " [REY ACTUAL]";
         cout << endl;
         
         contadorSucesion++; 
@@ -122,4 +188,28 @@ void view_mostrarCambioRey(Persona* reyAntiguo, Persona* reyNuevo) {
         cout << ">>> EL LINAJE SE HA EXTINGUIDO. NO HAY HEREDEROS. <<<" << endl;
     }
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n" << endl;
+}
+
+void view_pedirDatosEdicion(Persona* p, string& n, string& l, char& g, int& a, bool& d) {
+    cout << "\n=== EDITANDO NODO (ID: " << p->id << ") ===" << endl;
+    cout << "Nota: Ingrese el dato nuevo para cada campo." << endl;
+    
+    cout << "Nombre actual (" << p->name << "): ";
+    cin >> n;
+    
+    cout << "Apellido actual (" << p->lastName << "): ";
+    cin >> l;
+    
+    cout << "Genero actual (" << p->gender << ") [H/M]: ";
+    cin >> g;
+    
+    cout << "Edad actual (" << p->age << "): ";
+    if (!(cin >> a)) { cin.clear(); cin.ignore(1000, '\n'); a = p->age; } // Validación simple
+    
+    cout << "Esta muerto? (Actual: " << (p->isDead ? "Si" : "No") << ") [1=Si, 0=No]: ";
+    int tempDead;
+    if (!(cin >> tempDead)) { tempDead = 0; }
+    d = (tempDead == 1);
+    
+    cout << ">>> Datos capturados para actualizacion." << endl;
 }
