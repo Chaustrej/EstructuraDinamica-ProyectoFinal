@@ -11,7 +11,7 @@ static Persona* raizArbol = nullptr;
 void controller_eventoCargarDatos() {
     view_mostrarMensaje("Cargando datos desde CSV...");
     
-    listaGlobal = model_cargarDesdeCSV("bin/realeza.csv");
+    listaGlobal = model_cargarDesdeCSV("../bin/realeza.csv");
     
     if (listaGlobal == nullptr) {
         view_mostrarMensaje("ERROR: No se pudo abrir 'realeza.csv'.");
@@ -67,7 +67,7 @@ void controller_eventoMatarRey() {
 
     model_ejecutarMuerteRey(raizArbol);
 
-    bool guardado = model_guardarEnCSV(listaGlobal, "bin/realeza.csv");
+    bool guardado = model_guardarEnCSV(listaGlobal, "../bin/realeza.csv");
     if (!guardado) {
         view_mostrarMensaje("AVISO: No se pudo persistir la muerte del rey en el CSV.");
     }
@@ -158,7 +158,7 @@ void controller_eventoEditarPersona() {
     }
     raizArbol = model_construirArbol(listaGlobal);
 
-    bool guardado = model_guardarEnCSV(listaGlobal, "bin/realeza.csv");
+    bool guardado = model_guardarEnCSV(listaGlobal, "../bin/realeza.csv");
     if (guardado) {
         view_mostrarMensaje("Datos actualizados, arbol reestructurado y CSV sincronizado.");
     } else {
