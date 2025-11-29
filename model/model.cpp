@@ -63,15 +63,6 @@ void model_limpiarReyes(Persona* nodo) {
 Persona* buscarCandidatoVaron(Persona* nodo) {
     if (nodo == nullptr) return nullptr;
 
-    // 1. Prioridad Absoluta: Rama de Primogénitos (Izquierda)
-    Persona* candidatoIzq = buscarCandidatoVaron(nodo->hijoMayor);
-    if (candidatoIzq != nullptr) return candidatoIzq;
-
-    // 2. Segunda Prioridad: Rama de Segundos hijos (Derecha)
-    Persona* candidatoDer = buscarCandidatoVaron(nodo->hijoMenor);
-    if (candidatoDer != nullptr) return candidatoDer;
-
-    // 3. Tercera Prioridad: El nodo actual (Él mismo)
     bool esVaron = (nodo->gender == 'H');
     bool estaVivo = (!nodo->isDead);
     bool edadCorrecta = (nodo->age < 70);
@@ -79,6 +70,14 @@ Persona* buscarCandidatoVaron(Persona* nodo) {
     if (esVaron && estaVivo && edadCorrecta) {
         return nodo;
     }
+
+    // 1. Rama de Primogénitos (Izquierda)
+    Persona* candidatoIzq = buscarCandidatoVaron(nodo->hijoMayor);
+    if (candidatoIzq != nullptr) return candidatoIzq;
+
+    // 2. Rama de segundos hijos (Derecha)
+    Persona* candidatoDer = buscarCandidatoVaron(nodo->hijoMenor);
+    if (candidatoDer != nullptr) return candidatoDer;
 
     return nullptr;
 }
@@ -126,7 +125,7 @@ Persona* model_encontrarHeredero(Persona* raiz) {
 Persona* model_obtenerReyActual(Persona* nodo) {
     if (nodo == nullptr) return nullptr;
     
-    if (nodo->isKing) return nodo;
+    if (nodo->isKing && !nodo->isDead) return nodo;
     
     Persona* izq = model_obtenerReyActual(nodo->hijoMayor);
     if (izq) return izq;
@@ -147,6 +146,9 @@ void model_ejecutarMuerteRey(Persona* raiz) {
         reyActual->isDead = true; // Lo matamos para que la lógica de sucesión busque al siguiente
     }
 
+    // 2.5 Asegurar que no queden banderas de reyes activos rezagadas
+    model_limpiarReyes(raiz);
+
     // 3. Buscar al NUEVO heredero con el rey anterior ya muerto
     Persona* nuevoRey = model_encontrarHeredero(raiz);
 
@@ -156,6 +158,17 @@ void model_ejecutarMuerteRey(Persona* raiz) {
     }
 }
 
+void model_actualizarDatos(Persona* p, string n, string l, char g, int a, bool d) {
+    if (p == nullptr) return;
+    
+    p->name = n;
+    p->lastName = l;
+    p->gender = g;
+    p->age = a;
+    p->isDead = d;
+    
+    // NOTA: No tocamos id, fatherId, ni isKing/wasKing
+}
 // ==========================================
 // CARGA CSV
 // ==========================================
@@ -172,4 +185,24 @@ Persona* model_cargarDesdeCSV(string arch) {
         if (!cab) { cab = p; ult = p; } else { ult->siguienteEnLista = p; ult = p; }
     }
     f.close(); return cab;
+}
+
+bool model_guardarEnCSV(Persona* cabeza, string arch) {
+    ofstream f(arch); if (!f.is_open()) return false;
+    f << "id,nombre,apellido,genero,edad,fatherId,isDead,wasKing,isKing\n";
+    Persona* actual = cabeza;
+    while (actual) {
+        f << actual->id << ','
+          << actual->name << ','
+          << actual->lastName << ','
+          << actual->gender << ','
+          << actual->age << ','
+          << actual->fatherId << ','
+          << (actual->isDead ? 1 : 0) << ','
+          << (actual->wasKing ? 1 : 0) << ','
+          << (actual->isKing ? 1 : 0) << '\n';
+        actual = actual->siguienteEnLista;
+    }
+    f.close();
+    return true;
 }
