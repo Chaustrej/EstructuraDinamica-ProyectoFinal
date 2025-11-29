@@ -31,21 +31,18 @@ bin/
   realeza.csv            # Datos de prueba y ejecutable compilado
 ```
 
-## Compilación
-Compila todo el proyecto (Windows PowerShell):
-```
-g++ main.cpp model/model.cpp view/view.cpp controller/controller.cpp -o bin/programa.exe
-```
 
-## Ejecución
-1. Desde la raíz del proyecto (`C:\Users\PC\Desktop\EstructuraDinamica-ProyectoFinal-main`) ejecuta:
-   ```
-   ./bin/programa.exe
-   ```
-2. Usa las opciones del menú:
-   - `1` Cargar datos desde CSV.
-  - `2` Calcular y anunciar al rey vigente mostrando únicamente la línea viva de sucesión.
-   - `3` Salir.
+## Compilación y ejecución
+1. Abrir la terminal ( se puede usar ctrl + ñ para abrirla directamente )
+2. Clonamos el repositorio de github y posteriormente entramos a la carpeta del proyecto con el comando cd EstructuraDinamica-ProyectoFinal
+3. En la terminal colocamos el siguiente comando para compilar:
+```
+g++ -o bin/programa src/main.cpp src/controller/controller.cpp src/model/model.cpp src/view/view.cpp
+
+```
+4. Ejecutamos el programa entrando a la carpeta BIN donde estará el ejecutable con el comando: cd bin
+5. posteriormente se creará el archivo ejecutable ( .exe ) y colocaremos el comando: ./programa.exe y podremos usar el programa, también se puede ejecutar abriendo la carpeta bin y dandole doble click a programa.exe
+
 
 > **Nota:** El controlador prueba automáticamente varias rutas comunes para `realeza.csv` (`bin/`). Asegúrate de que el archivo exista en esta ruta o ajusta la ruta en `controller/controller.cpp` si cambiaste la estructura.
 
